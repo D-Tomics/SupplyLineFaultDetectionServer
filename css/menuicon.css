@@ -1,0 +1,52 @@
+.menu-icon {
+  float: left;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.bar1, .bar2, .bar3 {
+	width: 20px;
+	height: 4px;
+	background: #fff;
+	margin: 4px 0;
+	transition: 0.4s;
+}
+
+
+
+.menu {
+  background-color: #eee;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  width: 0;
+  padding-top: 10px;
+  overflow: hidden;
+  transition: 0.5s;
+}
+
+.menu img {
+  position: relative;
+  left: 80%;
+}
+
+.menu img:hover {
+  cursor: pointer;
+}
+
+.menu a{
+  color: black;
+  display: block;
+  padding: 12px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.menu a:hover {
+  background-color: #ccc;
+}
+
+.menu a.active {
+  background-color: #5885ed;
+  color: white;
+}
