@@ -2,4 +2,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/dtomics/public_html/
-    - /repositories/SupplyLineFaultDetectionServer -R images $DEPLOYPATH
+    - /repositories/SupplyLineFaultDetectionServer -R index.jsp $DEPLOYPATH
