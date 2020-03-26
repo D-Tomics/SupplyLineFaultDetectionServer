@@ -33,6 +33,17 @@ public class Database {
         return instance;
     }
 
+    public Database get(String dbName, String userName, String password, String url, String host) {
+        if(instance == null) 
+            instance = new Database();
+        instance.name = dbName;
+        instance.host = host;
+        instance.url = url;
+        instance.usrname = userName;
+        instance.password = password;
+        return instance;
+    }
+
     public static void setHost(String host) {
         instance.host = host;
     }
