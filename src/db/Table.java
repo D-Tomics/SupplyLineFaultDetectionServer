@@ -12,6 +12,10 @@ public class Table {
     private String name;
     private String[] columns;
     private String[] columnType;
+    private static PrintWriter out;
+    private String columnName;
+    
+    protected Table() {}
 
     /*
         public int insert(String...values);
@@ -40,9 +44,6 @@ public class Table {
     public static void setOut(PrintWriter out)
 
     */
-
-    private static PrintWriter out;
-	private String columnName;
 
     public int insert(String...values){
         String sql = "INSERT INTO "+name+" ";
@@ -222,7 +223,10 @@ public class Table {
 
     public void setColumns() {
         try {
-            ResultSetMetaData rsm = db.executeQuery("SELECT * FROM "+name).getMetaData();
+            ResultSet rs = db.executeQuery("SELECT * FROM "+name);
+            if(rs == null)
+             throw new IllegalStateException("could'nt initialise table "+name);
+            ResultSetMetaData rsm = rs.getMetaData();
             this.columns = new String[rsm.getColumnCount()];
             this.columnType = new String[rsm.getColumnCount()];
 
