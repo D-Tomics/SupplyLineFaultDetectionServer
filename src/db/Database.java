@@ -9,7 +9,7 @@ import java.sql.Statement;
 
 public class Database {
 
-    private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";//"com.mysql.jdbc.Driver";
 
     public static PrintWriter out = new PrintWriter(System.out);
 
@@ -33,7 +33,7 @@ public class Database {
         return instance;
     }
 
-    public Database get(String dbName, String userName, String password, String url, String host) {
+    public static Database getDatabase(String dbName, String userName, String password, String host, String url) {
         if(instance == null) 
             instance = new Database();
         instance.name = dbName;
@@ -48,7 +48,7 @@ public class Database {
         instance.host = host;
     }
 
-    public Database() {
+    private Database() {
         try {
             Class.forName(JDBC_DRIVER);
         } catch (ClassNotFoundException e) {
