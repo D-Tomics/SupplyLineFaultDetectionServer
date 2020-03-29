@@ -1,6 +1,7 @@
 package servlets;
 
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,14 +30,18 @@ public class Home extends HttpServlet {
     }
 
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String id = req.getParameter("id");
+        String action = req.getParameter("action");
 
         Database database = Database.getDatabase("employee");
 
-        switch (id) {
+        switch (action) {
             case TR_DATA:
+                String sqlCondition = getSqlCondition(req);
+                // if(sqlCondition.isEmpty() || sqlCondition.equalsIgnoreCase("status=ok"))
+                //     sqlCondition = "id <= 5";
+                    
                 Table trData = database.getTable("trData");
-                ResultSet rs = trData.get("*");
+                ResultSet rs = trData.get(sqlCondition,"*");
                 ArrayList<TransformerData> list = new ArrayList<>();
                 try {
                     while (rs.next()) {
@@ -58,7 +63,7 @@ public class Home extends HttpServlet {
                 req.setAttribute("visible", null);
         }
 
-        req.getRequestDispatcher("./Home.jsp").forward(req, res);
+       req.getRequestDispatcher("./Home.jsp").forward(req, res);
     }
 
     private TransformerData getTrData(ResultSet rs) throws NumberFormatException, SQLException {
@@ -69,6 +74,68 @@ public class Home extends HttpServlet {
             rs.getString("location"),
             rs.getString("status")
             );
+    }
+
+    private String getSqlCondition(HttpServletRequest req) {
+        String id = req.getParameter("id");
+        String location = req.getParameter("location");
+        String current = req.getParameter("current");
+        String voltage = req.getParameter("voltage");
+        String freq = req.getParameter("freq");
+        String status = req.getParameter("status");
+
+        String currOp = req.getParameter("current_operation");
+        String volOp = req.getParameter("voltage_operation");
+        String freqOp = req.getParameter("freq_operation");
+
+        StringBuilder sqlCondition = new StringBuilder();
+        if(id != null && !id.isEmpty())
+            sqlCondition.append("id=").append(id);
+        if(location != null && !location.isEmpty()) {
+            if(id != null && !id.isEmpty())
+                sqlCondition.append(" AND ");
+            sqlCondition.append("location=").append("\"").append(location).append("\"");
+        }
+        if(current != null && !current.isEmpty()){
+            if(
+                id != null && !id.isEmpty() ||
+                location != null && !location.isEmpty()
+                )
+                    sqlCondition.append(" AND ");
+            sqlCondition.append("current").append(currOp).append(current);
+        }
+        if(voltage != null && !voltage.isEmpty()) {
+            if(
+                id != null && !id.isEmpty() ||
+                location != null && !location.isEmpty() ||
+                current != null && !current.isEmpty()
+                )
+                    sqlCondition.append(" AND ");
+            sqlCondition.append("voltage").append(volOp).append(voltage);
+        }
+        if(freq != null && !freq.isEmpty()) {
+            if(
+                id != null && !id.isEmpty() ||
+                location != null && !location.isEmpty() ||
+                current != null && !current.isEmpty() ||
+                voltage != null && !voltage.isEmpty()
+                )
+                sqlCondition.append(" AND ");
+            sqlCondition.append("frequency").append(freqOp).append(freq);
+        }
+        if(status != null && !status.isEmpty()) {
+            if(
+                id != null && !id.isEmpty() ||
+                location != null && !location.isEmpty() ||
+                current != null && !current.isEmpty() ||
+                voltage != null && !voltage.isEmpty() ||
+                freq != null && !freq.isEmpty()
+                )
+                sqlCondition.append(" AND ");
+            sqlCondition.append("status=").append("\"").append(status).append("\"");
+        }
+
+        return sqlCondition.toString();
     }
 
 }

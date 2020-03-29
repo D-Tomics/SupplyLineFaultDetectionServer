@@ -1,6 +1,7 @@
 *{
   margin: 0;
   padding: 0px;
+  box-sizing: border-box;
 }
 
 html, body {
@@ -69,7 +70,7 @@ html, body {
   width: 100%;
   height: 100%;
   background-color: #fff;
-  overflow: auto;
+  overflow: hidden;
 }
 
 #DataPanel #analytics {
@@ -86,16 +87,22 @@ html, body {
   transition: 0.3s;
 }
 
-#trData #trDataTable {
-  border-collapse: collapse;
-  background:#fff;
-  width: 10%;
+#trData #table_box {
+  width: 80%;
+  height: 80%;
+  overflow: auto;
+  box-shadow: 0 0 20px rgba(0,0,0, 0.5);
 
   position: relative;
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%);
+}
 
+#trDataTable {
+  border-collapse: collapse;
+  background:#fff;
+  width: 100%;
 }
 
 #form_row {
@@ -105,36 +112,59 @@ html, body {
   height: 1em;
 }
 
+#input_id, #input_loc, #input_current, #input_voltage, #input_freq, #input_status , #input_current_operation, #input_voltage_operation, #input_freq_operation
+{
+  border: 1px solid #553d678a;
+  border-radius: 1px;
+}
 #input_id, #input_loc {
   padding: 0;
-  width: 98%;
+  width: 99%;
   height: 4.3em;
 }
 
 #input_status {
   margin: 0;
-  width: 96%;
+  width: 99%;
   height: 4.6em;
 }
 
 #input_current, #input_voltage, #input_freq {
-  width: 98%;
+  width: 99%;
   height: 2em;
 }
 
 #input_current_operation, #input_voltage_operation, #input_freq_operation {
-  width: 101%;
+  width: 99%;
   height: 2.1em;
 }
+
+#form_submit {
+  width: 100%;
+  height: 2em;
+  background-color: #553d67;
+  color: #fff;
+  border: 0px;
+  transition: 0.5s;
+}
+
+#form_submit:hover {
+  background-color: #fff;
+  border: 1px solid #553d67;
+  color: #553d67;
+}
+
 
 .trData_table_header, .trData_table_data {
   padding: 1em;
 }
 
 .trData_table_header {
+  position: sticky;
+  top: 0;
   background:#553d67;
   color:#fff;
-  text-align: left;
+  text-align: center;
 }
 
 .trData_table_data {
