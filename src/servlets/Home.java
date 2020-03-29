@@ -92,45 +92,27 @@ public class Home extends HttpServlet {
         if(id != null && !id.isEmpty())
             sqlCondition.append("id=").append(id);
         if(location != null && !location.isEmpty()) {
-            if(id != null && !id.isEmpty())
+            if(!sqlCondition.toString().isEmpty())
                 sqlCondition.append(" AND ");
             sqlCondition.append("location=").append("\"").append(location).append("\"");
         }
         if(current != null && !current.isEmpty()){
-            if(
-                id != null && !id.isEmpty() ||
-                location != null && !location.isEmpty()
-                )
+            if(!sqlCondition.toString().isEmpty())
                     sqlCondition.append(" AND ");
             sqlCondition.append("current").append(currOp).append(current);
         }
         if(voltage != null && !voltage.isEmpty()) {
-            if(
-                id != null && !id.isEmpty() ||
-                location != null && !location.isEmpty() ||
-                current != null && !current.isEmpty()
-                )
+            if(!sqlCondition.toString().isEmpty())
                     sqlCondition.append(" AND ");
             sqlCondition.append("voltage").append(volOp).append(voltage);
         }
         if(freq != null && !freq.isEmpty()) {
-            if(
-                id != null && !id.isEmpty() ||
-                location != null && !location.isEmpty() ||
-                current != null && !current.isEmpty() ||
-                voltage != null && !voltage.isEmpty()
-                )
+            if(!sqlCondition.toString().isEmpty())
                 sqlCondition.append(" AND ");
             sqlCondition.append("frequency").append(freqOp).append(freq);
         }
         if(status != null && !status.isEmpty()) {
-            if(
-                id != null && !id.isEmpty() ||
-                location != null && !location.isEmpty() ||
-                current != null && !current.isEmpty() ||
-                voltage != null && !voltage.isEmpty() ||
-                freq != null && !freq.isEmpty()
-                )
+            if(!sqlCondition.toString().isEmpty())
                 sqlCondition.append(" AND ");
             sqlCondition.append("status=").append("\"").append(status).append("\"");
         }
