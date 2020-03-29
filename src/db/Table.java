@@ -172,13 +172,14 @@ public class Table {
     }
 
     public ResultSet get(String columnName) {
-        if(db == null) return null;
-        return db.executeQuery("SELECT "+columnName+" FROM "+name);
+        return get(null, columnName);
     }
 
     public ResultSet get(String condition,String columnName) {
         if(db == null) return null;
-        return db.executeQuery("SELECT "+columnName+" FROM "+name+" WHERE "+condition);
+        return condition != null && !condition.equals("")? 
+                db.executeQuery("SELECT "+columnName+" FROM "+name+" WHERE "+condition) :
+                db.executeQuery("SELECT "+columnName+" FROM "+name);
     }
 
     public Integer getInt(String condition,String columnName) {
