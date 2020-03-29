@@ -15,7 +15,11 @@ html, body {
 }
 
 .fadeIn {
-  animation: fadein 0.3s;
+  animation: fadein 1s;
+}
+
+.fadeOut {
+  animation: fadeout 0.3s;
 }
 
 @keyframes fadein {
@@ -23,10 +27,14 @@ html, body {
   to{opacity: 1;}
 }
 
+@keyframes fadeout{
+  from{opacity: 1;}
+  to{opacity: 0;}
+}
 
-#logo {
+/* data panel */
+#DataPanel {
   background-image: url(../images/Power_lines_pillars.jpg);
-  min-height: 100%;
   opacity: 0.9;
   position: relative;
   background-position: center;
@@ -34,29 +42,130 @@ html, body {
   background-size: cover;
   background-attachment: fixed;
 
-  font-size: 70px;
   text-align: center;
   width: 75%;
   height: 100%;
-  /* background-color: #05386b; */
   float: left;
 }
 
-#cName {
-  margin: 25% 0;
-  vertical-align: middle;
+
+#DataPanel .dataPanelElements {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+
+#DataPanel #cName {
+  font-size: 60px;
   opacity: 0.9;
   line-height: 100%;
   color: #FFF;
   text-shadow: 2px 2px 10px #000;
 }
 
-#actions{
+#DataPanel #trData {
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  overflow: auto;
+}
+
+#DataPanel #analytics {
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  transition: 0.3;
+}
+
+#DataPanel #remote {
+  width: 100%;
+  height: 100%;
+  background-color: #FFF;
+  transition: 0.3s;
+}
+
+#trData #trDataTable {
+  border-collapse: collapse;
+  background:#fff;
+  width: 10%;
+
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+
+}
+
+#form_row {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 1em;
+}
+
+#input_id, #input_loc {
+  padding: 0;
+  width: 98%;
+  height: 4.3em;
+}
+
+#input_status {
+  margin: 0;
+  width: 96%;
+  height: 4.6em;
+}
+
+#input_current, #input_voltage, #input_freq {
+  width: 98%;
+  height: 2em;
+}
+
+#input_current_operation, #input_voltage_operation, #input_freq_operation {
+  width: 101%;
+  height: 2.1em;
+}
+
+.trData_table_header, .trData_table_data {
+  padding: 1em;
+}
+
+.trData_table_header {
+  background:#553d67;
+  color:#fff;
+  text-align: left;
+}
+
+.trData_table_data {
+  color : #99738e;
+  text-align:center;
+  overflow: hidden;
+
+  transition: 0.3s;        
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+}
+
+.trData_table_data:hover {
+  background:#ccdcff;
+  color : #5d8ffc;
+}
+
+.tr_data_row:nth-child(even) {
+    background: #dbf2ff;
+}
+
+
+/* actions */
+#actions {
+  font-weight: 550;
   width: 25%;
   height: 100%;
   background-color: #FC4445;
   float: left;
   text-align: right;
+  overflow: hidden;
 }
 
 #actions a {
@@ -64,20 +173,49 @@ html, body {
   text-decoration: none;
 }
 
-#actions div {
-  margin-right: 5%;
+
+#actions .btn {
+  cursor: pointer;
+  line-height: 100%;
+  padding-top: 3%;
+  padding-bottom: 3%;
+  padding-right: 10%;
+  transition: 0.3s;
+}
+
+#actions #trDataButton {
+  margin-top: 5%;
+}
+
+
+#actions .btn:hover {
+  transform: translate(-2%,0);  
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
 }
 
 @media(max-width:568px) {
-  #logo{
+  #DataPanel{
     display: block;
+    text-align: center;
     width: 100%;
     height: 100%;
   }
 
   #actions {
     display: block;
+    text-align: center;
+    padding: 0;
+    margin: 0;
     width: 100%;
     height: 100%;
+  }
+
+  .btn {
+    padding: 10%;
+    border: 1px solid rgb(240, 50, 50);
+  }
+
+  #actions #trDataButton {
+    margin-top: 0%;
   }
 }

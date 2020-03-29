@@ -27,6 +27,10 @@ public class TransformerData {
         this.load = voltage/current;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public float getCurrent() {
         return current;
     }
