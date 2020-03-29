@@ -49,7 +49,6 @@ html, body {
   float: left;
 }
 
-
 #DataPanel .dataPanelElements {
   position: absolute;
   top: 50%;
@@ -114,17 +113,16 @@ html, body {
 
 #input_id, #input_loc, #input_current, #input_voltage, #input_freq, #input_status , #input_current_operation, #input_voltage_operation, #input_freq_operation
 {
+  padding: 3%;
   border: 1px solid #553d678a;
   border-radius: 1px;
 }
 #input_id, #input_loc {
-  padding: 0;
   width: 99%;
   height: 4.3em;
 }
 
 #input_status {
-  margin: 0;
   width: 99%;
   height: 4.6em;
 }

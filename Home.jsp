@@ -21,7 +21,6 @@
             String usrName = (String)session.getAttribute("username");
             if(usrName == null) response.sendRedirect("./index.jsp");
         %>
-
         <div id="DataPanel">
             <div id="cName" class="dataPanelElements">
                 A B C <br><br>
@@ -113,11 +112,12 @@
 
         </div>
         <div id="actions">
-            <a href="Home?action=1"><div class = "btn" id="trDataButton">LIVE DATA</div></a>
-            <a href="Home?action=2"><div class = "btn" id="analyticsButton">ANALYTICS</div></a>
-            <a href="Home?action=3"><div class = "btn" id="remoteButton">REMOTE</div></a>
-            <a href="Home?action=4"><div class = "btn" id="aboutButton">ABOUT</div></a>
-            <a href="Logout"><div class = "btn" id="logout">LOGOUT</div></a>
+            <a href="Home?action=1"><div class = "btn" id="trDataButton">   LIVE DATA   </div></a>
+            <a href="Home?action=2"><div class = "btn" id="analyticsButton">ANALYTICS   </div></a>
+            <a href="Home?action=3"><div class = "btn" id="remoteButton">   REMOTE      </div></a>
+            <a href="Home.jsp">     <div class="btn" id="homepage">         HOME        </div></a>
+            <a href="Home?action=4"><div class = "btn" id="aboutButton">    ABOUT       </div></a>
+            <a href="Logout">       <div class = "btn" id="logout">         LOGOUT      </div></a>
         </div>
         <script>
             var visible = '${visible}';
@@ -128,6 +128,8 @@
 
             switch(visible) {
                 case "trData":
+                    remote.style.zIndex = 0;
+                    analytics.style.zIndex = 0;
                     trData.style.zIndex = 2;
 
                     analytics.style.opacity = 1;
@@ -137,6 +139,8 @@
                     trData.classList.add("fadeIn");
                     break;
                 case "analytics":
+                    remote.style.zIndex = 0;
+                    trData.style.zIndex = 0;
                     analytics.style.zIndex = 2;
 
                     trData.style.opacity = 1;
@@ -147,6 +151,7 @@
 
                     break;
                 case "remote":
+                    analytics.style.zIndex = 0;
                     remote.style.zIndex = 2;
 
                     trData.style.opacity = 1;
