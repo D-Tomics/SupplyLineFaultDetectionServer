@@ -51,7 +51,7 @@ public class Database {
         try {
             Class.forName(JDBC_DRIVER);
         } catch (ClassNotFoundException e) {
-             e.printStackTrace(out);
+             e.printStackTrace();
         }
     }
 

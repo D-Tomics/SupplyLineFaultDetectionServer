@@ -1,21 +1,25 @@
 package servlets;
 
 import java.io.IOException;
-import java.net.http.HttpRequest;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import data.TransformerData;
 import db.Database;
 import db.Table;
+import jdk.nashorn.internal.ir.RuntimeNode.Request;
 
 @WebServlet("/Home")
 public class Home extends HttpServlet {
@@ -38,10 +42,10 @@ public class Home extends HttpServlet {
             case TR_DATA:
                 String sqlCondition = getSqlCondition(req);
                 // if(sqlCondition.isEmpty() || sqlCondition.equalsIgnoreCase("status=ok"))
-                //     sqlCondition = "id <= 5";
-                    
+                // sqlCondition = "id <= 5";
+
                 Table trData = database.getTable("trData");
-                ResultSet rs = trData.get("*",sqlCondition.toString());
+                ResultSet rs = trData.get("*", sqlCondition.toString());
                 ArrayList<TransformerData> list = new ArrayList<>();
                 try {
                     while (rs.next()) {
@@ -50,10 +54,21 @@ public class Home extends HttpServlet {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                req.setAttribute("trData",list);
+                req.setAttribute("trData", list);
                 req.setAttribute("visible", "trData");
                 break;
             case ANALYTICS:
+                Table trDataLog = database.getTable("trDataLog");
+                Date date = Date.valueOf("1970-01-01");
+                String json = trDataLog.getString("log", "date=?", date);
+
+                JSONParser parser = new JSONParser();
+                try {
+                    JSONObject job = (JSONObject) parser.parse(json);
+                    req.setAttribute("trDataLog",job);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 req.setAttribute("visible", "analytics");
                 break;
             case REMOTE:

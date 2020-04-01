@@ -33,9 +33,6 @@ public class Login extends HttpServlet {
             return;
         }
 
-        PrintWriter out = res.getWriter();
-        Database.out = out;
-
         User user = new User(userName);
 
         if(user.authenticate(password)){

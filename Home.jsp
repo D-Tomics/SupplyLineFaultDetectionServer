@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
     <script src="./scripts/HomeScript.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <link rel="stylesheet" type="text/css" href="./css/Home.css">
 <head>
 </head>
@@ -146,6 +146,97 @@
                     trData.style.opacity = 1;
                     remote.style.opacity = 1;
                     analytics.style.opacity = 1;
+
+                    var text = '${trDataLog}';
+                    var json = JSON.parse(text);
+                    var keys = Object.keys(json);
+                    keys.sort(function(a,b) {
+                        return new Date('1970/01/01 ' + a) - new Date('1970/01/01 ' + b);
+                    });
+                    
+                    var vol = [];
+                    var cur = [];
+                    var fre = [];
+                    var pow = [];
+                    for(var i = 0; i < keys.length; i++) {
+                        var k = keys[i];
+                        var obj = json[k];
+                        vol.push(obj.v);
+                        cur.push(obj.i);
+                        fre.push(obj.f);
+                        pow.push(obj.v * obj.i);
+                    }
+
+                    var config = {
+                        type: 'line',
+                        data: {
+                            labels: keys,
+                            datasets: [
+                                {
+                                    label : 'voltage',
+                                    backgroundColor: 'rgb(255, 99, 132)',
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    data: vol,
+                                    fill: false,
+                                },
+                                {
+                                    label : 'current',
+                                    backgroundColor: 'rgb(132, 255, 99)',
+                                    borderColor: 'rgb(132, 255, 99)',
+                                    data: cur,
+                                    fill: false,
+                                },
+                                {
+                                    label : 'frequency',
+                                    backgroundColor: 'rgb(99, 132, 255)',
+                                    borderColor: 'rgb(99, 132, 255)',
+                                    data: fre,
+                                    fill: false,
+                                },
+                                {
+                                    label : 'power',
+                                    backgroundColor: 'rgb(132, 99, 255)',
+                                    borderColor: 'rgb(132, 99, 255)',
+                                    data: pow,
+                                    fill: false,
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            title: {
+                                display: true,
+                                text: 'Chart.js Line Chart'
+                            },
+                            tooltips: {
+                                mode: 'index',
+                                intersect: false,
+                            },
+                            hover: {
+                                mode: 'nearest',
+                                intersect: true
+                            },
+                            scales: {
+                                xAxes: [{
+                                    display: true,
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'time'
+                                    }
+                                }],
+                                yAxes: [{
+                                    display: true,
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Volts / Amp / HZ / Watts'
+                                    }
+                                }]
+                            }
+                        }
+                    };
+
+                    var ctx = document.getElementById('chart').getContext('2d');
+                    var chart = new Chart(ctx,config);
 
                     analytics.classList.add("fadeIn");
 
