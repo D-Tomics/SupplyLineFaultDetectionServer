@@ -82,7 +82,7 @@
                         </form>
                         <tr id="header_row">
                             <th class="trData_table_header">id      </th>
-                            <th class="trData_table_header">location</th>
+                            <th class="trData_table_header">;location</th>
                             <th class="trData_table_header">current </th>
                             <th class="trData_table_header">voltage </th>
                             <th class="trData_table_header">freq    </th>

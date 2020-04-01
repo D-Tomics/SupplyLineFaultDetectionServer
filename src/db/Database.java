@@ -3,15 +3,14 @@ package db;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Database {
 
-    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";//"com.mysql.jdbc.Driver";
-
-    public static PrintWriter out = new PrintWriter(System.out);
+    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 
     private String usrname = "root";
     private String password = "root";
@@ -59,9 +58,19 @@ public class Database {
     public void connect() throws SQLException {
         if (!connected) {
             connection = DriverManager.getConnection(url, usrname, password);
-            statement = connection.createStatement();        
+            statement = connection.createStatement();    
             connected = true;
         }
+    }
+
+    public PreparedStatement createPreparedStatement(String sql) {
+        try {
+            if(!connected) connect();
+            return connection.prepareStatement(sql);
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+       return null;
     }
 
     public boolean execute(String sql) {
@@ -69,7 +78,7 @@ public class Database {
             if(!connected) connect();
             return statement.execute(sql);
         } catch (SQLException e) {
-            e.printStackTrace(out);
+            System.err.println(e.getMessage());
         }
         return false;
     }
@@ -79,7 +88,7 @@ public class Database {
             if(!connected) connect();
             return statement.executeQuery(sql);
         } catch (SQLException e) {
-            e.printStackTrace(out);
+            System.err.println(e.getMessage());
         }
         return null;
     }
@@ -89,7 +98,37 @@ public class Database {
             if(!connected) connect();
             return statement.executeUpdate(sql);
         } catch (SQLException e) {
-            e.printStackTrace(out);
+            System.err.println(e.getMessage());
+        }
+        return 0;
+    }
+    
+    public boolean execute(PreparedStatement statement) {
+        try {
+            if(!connected) connect();
+            return statement.execute();
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        return false;
+    }
+
+    public ResultSet executeQuery(PreparedStatement statement) {
+        try {
+            if(!connected) connect();
+            return statement.executeQuery();
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
+
+    public int executeUpdate(PreparedStatement statement) {
+        try {
+            if(!connected) connect();
+            return statement.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
         }
         return 0;
     } 
@@ -101,20 +140,13 @@ public class Database {
             statement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace(out);
+            System.err.println(e.getMessage());
         }
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 
     public Table getTable(String name) {
-        Table table = new Table();
-        Table.setOut(out);
-        table.setDb(this);
-        table.setName(name);
-        table.setColumns();
-        return table;
+        return new Table(name, this);
     }
 }

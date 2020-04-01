@@ -1,9 +1,7 @@
 package data;
 
-import db.Database;
-import db.Table;
-
 public class TransformerData {
+
     private int id;
     private float current;
     private float voltage;
@@ -11,14 +9,7 @@ public class TransformerData {
     private String status;
     private String loc;
 
-    private static Database db;
-    private static Table trTable;
-
     public TransformerData(int id,float current, float voltage, String loc, String status) {
-        if(db == null) {
-            db =  Database.getDatabase("employee");
-            trTable = db.getTable("trData");
-        }
         this.id = id;
         this.current = current;
         this.voltage = voltage;
@@ -49,13 +40,6 @@ public class TransformerData {
 
     public float getLoad() {
         return load;
-    }
-
-    public void update() {
-        trTable.updateColumn(
-            "id="+this.id,
-                new String[] {"current","voltage","status","location"},
-                new String[]{current+"",voltage+"",status, loc});
     }
     
 }

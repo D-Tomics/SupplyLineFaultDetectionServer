@@ -39,18 +39,18 @@ public class User {
     }
 
     public boolean registerUser(String password) {
-        if(usersTable.containsString("name", username)) return false;
+        if(usersTable.contains("name", username)) return false;
         Password securePassword = Encrypt.hashPassword(password);
-        usersTable.insertString(username,email,securePassword.getHash(),securePassword.getSalt());
+        usersTable.insert(username,email,securePassword.getHash(),securePassword.getSalt());
         return true;
     }
 
     public boolean authenticate(String password) {
 
-        if(!usersTable.containsString("name", username)) return false;
+        if(!usersTable.contains("name", username)) return false;
 
-        String userHashedPass = usersTable.getString("name='"+username+"'", "password");
-        String salt = usersTable.getString("name='"+username+"'", "salt");
+        String userHashedPass = usersTable.getString("password","name=?",username);
+        String salt = usersTable.getString("salt","name=?",username);
 
         Password enteredPassword = Encrypt.hashPassword(password,Base64.getDecoder().decode(salt));
         

@@ -1,29 +1,22 @@
 package servlets;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Enumeration;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import data.TransformerData;
 import db.Database;
 import db.Table;
 
 @WebServlet("/request")
 public class DataRequestHandler extends HttpServlet {
 
-    public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
-        PrintWriter out = res.getWriter();
+    private static final long serialVersionUID = 1L;
 
+    public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         String id = req.getParameter("id");
         if(id.equals("")) return;
 
@@ -32,12 +25,13 @@ public class DataRequestHandler extends HttpServlet {
         String loc = req.getParameter("loc");
         String status = req.getParameter("status");
 
-        TransformerData data = new TransformerData(
-            Integer.parseInt(id),
-            Float.parseFloat(current),
-            Float.parseFloat(voltage),
-            loc,status);
-        data.update();
+        Database db = Database.getDatabase("employee");
+        Table trData = db.getTable("trData");
+
+        if(trData.contains("id", id)) {
+            trData.updateColumns("id="+id, new String[] {"location","current","voltage","status"},loc,current,voltage,status);
+        }
+
     }
 
 }

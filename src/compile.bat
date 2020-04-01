@@ -12,7 +12,7 @@ set /p libLoc=enter jar file locations if any?
         set /p f=enter file to run?
         set /p ar=enter args?
         echo running...
-        java -cp "%classLoc%;%libLoc%;" %f% %ar%
+        java -ea -cp "%classLoc%;%libLoc%;" %f% %ar%
         echo exit status 0
         pause
         goto start

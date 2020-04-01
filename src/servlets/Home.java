@@ -41,7 +41,7 @@ public class Home extends HttpServlet {
                 //     sqlCondition = "id <= 5";
                     
                 Table trData = database.getTable("trData");
-                ResultSet rs = trData.get(sqlCondition,"*");
+                ResultSet rs = trData.get("*",sqlCondition.toString());
                 ArrayList<TransformerData> list = new ArrayList<>();
                 try {
                     while (rs.next()) {

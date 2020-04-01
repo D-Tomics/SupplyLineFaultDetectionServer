@@ -1,10 +1,11 @@
 package db;
 
-import java.io.PrintWriter;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-
+import java.sql.Time;
 
 public class Table {
 
@@ -12,274 +13,196 @@ public class Table {
     private String name;
     private String[] columns;
     private String[] columnType;
-    private static PrintWriter out;
-    private String columnName;
-    
-    protected Table() {}
 
-    /*
-        public int insert(String...values);
-        public int insertString(String...values);
-        public int insertInt(int...values);
-        public int insertString(String[] columns, String...values);
-        public int insertInt(String[] columns, int...values);
-
-        public int updateColumn(String condition,String[] columnName,String...val);
-        public int updateColumn(String condition,String[] columnName,int...val);
-        public int updateColumn(String condition,String columnName, String value);
-        public int updateColumn(String condition,String columnName, int value);
-        public int updateColumn(String condition,String columnName, float value);
-
-        public boolean containsString(String columnName, String val);
-        public boolean containsInt(String columnName, int val)
-    public boolean containsString(String condition,String columnName, String val)
-    public boolean containsInt(String condition,String columnName,int val)
-    public ResultSet get(String columnName)
-    public ResultSet get(String condition,String columnName)
-    public Integer getInt(String condition,String columnName)
-    public String getString(String condition,String columnName)
-    public void setName(String name)
-    public void setDb(Database db)
-    public void setColumns()
-    public static void setOut(PrintWriter out)
-
-    */
-
-    public int insert(String...values){
-        String sql = "INSERT INTO "+name+" ";
-        if(columns.length != values.length)
-             throw new IllegalStateException();
-        
-        sql += "("+columns[0];
-        for(int i = 1; i < columns.length; i++)
-            sql += ","+columns[i];
-        
-        String type = columnType[0];
-        if(type.equals("VARCHAR"))
-            sql += ") VALUES('"+values[0]+"'";
-        else 
-            sql+=") VALUES("+Integer.parseInt(values[0])+"";
-        for(int i = 1; i< columns.length;i++) {
-            type = columnType[i];
-            if(type.equals("VARCHAR"))
-                sql += ",'"+values[i]+"'";
-            else
-                sql+=","+values[i];
-        }
-        sql += ")";
-
-        return db.executeUpdate(sql);
+    protected Table(String name, Database db) {
+        this.name = name;
+        this.db = db;
+        this.setColumns();
     }
 
-    public int insertString(String...values) {
-        return insertString(columns,values);
+    public int insert(Object... values) {
+        if (columns.length != values.length)
+            throw new IllegalStateException("sql error::values.lenth != columns.length");
+
+        PreparedStatement statement = db.createPreparedStatement(getInsertStatement());
+        setStatementParams(statement, values);
+        return db.executeUpdate(statement);
     }
 
-    public int insertInt(int...values) {
-        return insertInt(columns, values);
+    public int insert(String[] columnNames, Object...values) {
+        if(columnNames.length != values.length)
+            throw new IllegalStateException("values length != columnNames length");
+
+        PreparedStatement statement = db.createPreparedStatement(getInsertStatement(columnNames));
+        setStatementParams(statement, values);
+        return db.executeUpdate(statement);
     }
 
-    public int insertString(String[] columns, String...values) {
-        String sql = "INSERT INTO "+name+" ";
+    public int updateColumns(String condition, String[] columnNames, Object...values) {
+        if(columnNames.length != values.length)
+            throw new IllegalStateException("column names does not match values");
 
-        if(columns.length != values.length) throw new IllegalStateException();
-        sql += "("+columns[0];
-        for(int i = 1; i < columns.length; i++)
-            sql += ","+columns[i];
-        sql += ") VALUES('"+values[0]+"'";
-        for(int i = 1; i< columns.length;i++)
-            sql += ",'"+values[i]+"'";
-        sql += ")";
-        
-        return db.executeUpdate(sql);
-    } 
-    
-    public int insertInt(String[] columns, int...values) {
-        String sql = "INSERT INTO "+name+" ";
-
-        if(columns.length != values.length) throw new IllegalStateException();
-        sql += "("+columns[0];
-        for(int i = 1; i < columns.length; i++)
-            sql += ","+columns[i];
-        sql += ") VALUES("+values[0];
-        for(int i = 1; i< columns.length;i++)
-            sql += ","+values[i];
-        sql += ")";
-
-        return db.executeUpdate(sql);
+        PreparedStatement statement = db.createPreparedStatement( getUpdateStatement(condition, columnNames) );
+        setStatementParams(statement, values);
+        return db.executeUpdate(statement);
     }
 
-    public int updateColumn(String condition,String[] columnName,String...val) {
-        String sql = "UPDATE "+name+" SET ";
-        if(columnName == null || columnName.length != val.length) return 0;
-        else  {
-            sql += columnName[0] + "='"+val[0]+"'";
-            for(int i = 1;i<columnName.length;i++) 
-                sql += ","+columnName[i]+"='"+val[i]+"'";
-        }
-        if(condition != null) sql += "WHERE "+condition;
-        return db.executeUpdate(sql);
-    }
-    
-    public int updateColumn(String condition,String[] columnName,int...val) {
-        String sql = "UPDATE "+name+" SET ";
-        if(columnName == null || columnName.length != val.length) return 0;
-        else  {
-            sql += columnName[0] + "="+val[0]+"";
-            for(int i = 1;i<columnName.length;i++) 
-                sql += ","+columnName[i]+"="+val[i];
-        }
-        if(condition != null) sql += "WHERE "+condition;
-        return db.executeUpdate(sql);
-    }
-
-    public int updateColumn(String condition,String columnName, String value) {
-        String sql = "UPDATE "+name+ " SET "+columnName+"='"+value+"' WHERE "+condition;
-        return db.executeUpdate(sql);
-    }
-
-    public int updateColumn(String condition,String columnName, int value) {
-        String sql = "UPDATE "+name+ " SET "+columnName+"="+value+" WHERE "+condition;
-        return db.executeUpdate(sql);
-    }
-    
-    public int updateColumn(String condition,String columnName, float value) {
-        String sql = "UPDATE "+name+ " SET "+columnName+"="+value+" WHERE "+condition;
-        return db.executeUpdate(sql);
-    }
-
-
-    public boolean containsString(String columnName, String val) {
-        ResultSet rs = get(columnName);
-        return containsString(rs, columnName, val);
-    }
-
-    public boolean containsInt(String columnName, int val) {
-        ResultSet rs = get(columnName);
-        return containsInt(rs, columnName, val);
-    }
-
-    public boolean containsString(String condition,String columnName, String val) {
-        ResultSet rs = get(condition, columnName);
-        if(rs == null) return false;
-        return containsString(rs, columnName, val);
-    }
-
-    public boolean containsInt(String condition,String columnName,int val) {
-        ResultSet rs = get(condition,columnName);
-        if(rs == null) return false;
-        return containsInt(rs,columnName,val);
+    public int updateColumns(String condition, String columnName, Object value) {
+        return updateColumns(condition, new String[] { columnName }, value);
     }
 
     public ResultSet get(String columnName) {
-        return get(null, columnName);
+        return get(columnName, null);
     }
 
-    public ResultSet get(String condition,String columnName) {
-        if(db == null) return null;
-        return condition != null && !condition.equals("")? 
-                db.executeQuery("SELECT "+columnName+" FROM "+name+" WHERE "+condition) :
-                db.executeQuery("SELECT "+columnName+" FROM "+name);
+    public ResultSet get(String columnName, String condition) {
+        return get(columnName, condition, (Object) null);
     }
 
-    public Integer getInt(String condition,String columnName) {
-        ResultSet rs = get(condition,columnName);
+    public ResultSet get(String[] columnNames, String condition, Object...conditionParams) {
+        PreparedStatement statement = db.createPreparedStatement(getQueryStatement(condition, columnNames));
+        if(conditionParams != null && conditionParams.length != 0 && condition != null && !condition.isEmpty())
+            setStatementParams(statement, conditionParams);
+        return db.executeQuery(statement);
+    }
+
+    public ResultSet get(String columnName, String condition, Object...conditionParams) {
+        PreparedStatement statement = db.createPreparedStatement(getQueryStatement(condition, columnName));
+        if(conditionParams != null && conditionParams.length != 0 && condition != null && !condition.isEmpty())
+            setStatementParams(statement, conditionParams);
+        return db.executeQuery(statement);
+    }
+
+
+    public boolean contains(String columnName, Object value) { return  getObject(columnName, columnName + "=?", value) != null; }
+
+    public String   getString (String columnName, String condition) { return (String) getObject(columnName, condition); }
+    public byte     getByte   (String columnName, String condition) { return (byte)   getObject(columnName, condition); }
+    public short    getShort  (String columnName, String condition) { return (short)  getObject(columnName, condition); }
+    public int      getInt    (String columnName, String condition) { return (int)    getObject(columnName, condition); }
+    public long     getLong   (String columnName, String condition) { return (long)   getObject(columnName, condition); }
+    public float    getFloat  (String columnName, String condition) { return (float)  getObject(columnName, condition); }
+    public double   getDouble (String columnName, String condition) { return (double) getObject(columnName, condition); }
+    public boolean  getBoolean(String columnName, String condition) { return (boolean)getObject(columnName, condition); }
+    public Date     getDate   (String columnName, String condition) { return (Date)   getObject(columnName, condition); }
+    public Time     getTime   (String columnName, String condition) { return (Time)   getObject(columnName, condition); }
+
+    public String   getString (String columnName, String condition, Object...cParams) { return (String) getObject(columnName, condition, cParams); }
+    public byte     getByte   (String columnName, String condition, Object...cParams) { return (byte)   getObject(columnName, condition, cParams); }
+    public short    getShort  (String columnName, String condition, Object...cParams) { return (short)  getObject(columnName, condition, cParams); }
+    public int      getInt    (String columnName, String condition, Object...cParams) { return (int)    getObject(columnName, condition, cParams); }
+    public long     getLong   (String columnName, String condition, Object...cParams) { return (long)   getObject(columnName, condition, cParams); }
+    public float    getFloat  (String columnName, String condition, Object...cParams) { return (float)  getObject(columnName, condition, cParams); }
+    public double   getDouble (String columnName, String condition, Object...cParams) { return (double) getObject(columnName, condition, cParams); }
+    public boolean  getBoolean(String columnName, String condition, Object...cParams) { return (boolean)getObject(columnName, condition, cParams); }
+    public Date     getDate   (String columnName, String condition, Object...cParams) { return (Date)   getObject(columnName, condition, cParams); }
+    public Time     getTime   (String columnName, String condition, Object...cParams) { return (Time)   getObject(columnName, condition, cParams); }
+
+    public Object getObject( String columnName, String condition,Object...conditionParams) {
+        ResultSet rs = get(columnName, condition, conditionParams);
+        if(rs == null) return null;
         try {
             rs.last();
             int count = rs.getRow();
-            if(count > 1 || count < 1)
+            if(count > 1 || count < 1) {
+                //System.err.println("returned result contains more than one Object or does not contain any element");
                 return null;
+            }
             rs.beforeFirst();
             rs.next();
-            return rs.getInt(columnName);
+            return rs.getObject(columnName);
         } catch (SQLException e) {
-            e.printStackTrace(out);
-        }
-        return null;
-    }
-    
-    public String getString(String condition,String columnName) {
-        ResultSet rs = get(condition,columnName);
-        try {
-            rs.last();
-            int count = rs.getRow();
-            if(count > 1 || count < 1)
-                return null;
-            rs.beforeFirst();
-            rs.next();
-            return rs.getString(columnName);
-        } catch (SQLException e) {
-            e.printStackTrace(out);
+            e.printStackTrace();
         }
         return null;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    } 
+    public String[] getColumnLabels() { return columns; }
+    public String[] getColumnTypes() { return columnType; }
 
-    public void setDb(Database db) {
-        this.db = db;
-    }
-
-    public void setColumns() {
+    private void setColumns() {
         try {
-            ResultSet rs = db.executeQuery("SELECT * FROM "+name);
-            if(rs == null)
-             throw new IllegalStateException("could'nt initialise table "+name);
+            ResultSet rs = db.executeQuery("SELECT * FROM " + name + " WHERE 1=2");
+            if (rs == null)
+                throw new IllegalStateException("could'nt initialise table " + name);
+
             ResultSetMetaData rsm = rs.getMetaData();
             this.columns = new String[rsm.getColumnCount()];
             this.columnType = new String[rsm.getColumnCount()];
 
-            for(int i = 1; i <= rsm.getColumnCount();i++) {
+            for (int i = 1; i <= rsm.getColumnCount(); i++) {
                 this.columns[i - 1] = rsm.getColumnLabel(i);
-                this.columnType[i-1] = rsm.getColumnTypeName(i);
+                this.columnType[i - 1] = rsm.getColumnTypeName(i);
             }
 
         } catch (SQLException e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
-    public static void setOut(PrintWriter out) {
-        Table.out = out;
-    }
-
-
-    private boolean containsInt(ResultSet rs,String columnName,int val) {
+    private void setStatementParams(PreparedStatement statement, Object... values) {
+        int index = 1;
         try {
-            while (rs.next()) {
-                if (rs.getInt(columnName) == val)
-                    return true;
+            for (Object value : values) {
+                     if (value instanceof String)   statement.setString(    index++, (String)   value);
+                else if (value instanceof Byte)     statement.setByte(      index++, (byte)     value);
+                else if (value instanceof Short)    statement.setShort(     index++, (short)    value);
+                else if (value instanceof Integer)  statement.setInt(       index++, (int)      value);
+                else if (value instanceof Long)     statement.setLong(      index++, (long)     value);
+                else if (value instanceof Float)    statement.setFloat(     index++, (float)    value);
+                else if (value instanceof Double)   statement.setDouble(    index++, (double)   value);
+                else if (value instanceof Boolean)  statement.setBoolean(   index++, (boolean)  value);
+                else if (value instanceof Date)     statement.setDate(      index++, (Date)     value);
+                else if (value instanceof Time)     statement.setTime(      index++, (Time)     value);
             }
         } catch (SQLException e) {
-            e.printStackTrace(out);
+            e.printStackTrace();
         }
-        return false;
     }
 
-    private synchronized boolean containsString(ResultSet rs,String columnName, String val) {
-        try {
-            while (rs.next()) {
-                if (rs.getString(columnName).equals(val))
-                    return true;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace(out);
+    private String getInsertStatement(String...columnLabels) {
+        String[] cLabels = columnLabels;
+        if(cLabels == null || cLabels != null && cLabels.length == 0) cLabels = columns;
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("INSERT INTO ").append(name);
+        if(columnLabels != null && columnLabels.length != 0) {
+            sql.append("( ").append(columnLabels[0]);
+            for(int i = 1; i < columnLabels.length; i++) sql.append(",").append(columnLabels[i]);
+            sql.append(")");
         }
-        return false;
+        
+        sql.append(" VALUES ( ? ");
+        for(int i = 1; i < cLabels.length; i++) sql.append(", ?");
+        sql.append(")");
+
+        return sql.toString();
     }
 
-    private synchronized boolean containsFloat(ResultSet rs, String columnName, float val) {
-        this.columnName = columnName;
-		try {
-            while (rs.next()) {
-                if (rs.getFloat(columnName) == val)
-                    return true;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace(out);
-        }
-        return false;
+    private String getUpdateStatement(String condition, String...columnLabels) {
+        String[] cLabels = columnLabels;
+        if(cLabels == null || cLabels != null && cLabels.length == 0) cLabels = columns;
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("UPDATE ").append(name).append(" SET ").append(cLabels[0]).append("=?");
+        for(int  i = 1; i < cLabels.length; i++) sql.append(",").append(cLabels[i]).append("=?");
+        if(condition != null && !condition.isEmpty()) sql.append(" WHERE ").append(condition);
+        return sql.toString();
     }
+
+    public String getQueryStatement(String condition, String...columnLabels) {
+
+        String[] cLabel =columnLabels;
+        if(cLabel == null || cLabel != null && cLabel.length == 0)
+            cLabel = new String[] {"*"};
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT ").append(cLabel[0]);
+        for(int i = 1; i < cLabel.length; i++) sql.append(",").append(cLabel[i]);
+        sql.append(" FROM ").append(name);
+
+        if(condition != null && !condition.isEmpty()) sql.append(" WHERE ").append(condition);
+        return sql.toString();
+    }
+
 }
