@@ -58,7 +58,7 @@ html, body {
 
 
 #DataPanel #cName {
-  font-size: 60px;
+  font-size: 3.5em;
   opacity: 0.9;
   line-height: 100%;
   color: #FFF;
@@ -76,14 +76,14 @@ html, body {
   width: 100%;
   height: 100%;
   background-color: #fff;
-  transition: 0.3;
+  overflow: hidden;
 }
 
 #DataPanel #remote {
   width: 100%;
   height: 100%;
   background-color: #FFF;
-  transition: 0.3s;
+  overflow: hidden;
 }
 
 #trData #table_box {
@@ -98,7 +98,7 @@ html, body {
   transform: translate(-50%,-50%);
 }
 
-#trDataTable {
+#table_box #trDataTable {
   border-collapse: collapse;
   background:#fff;
   width: 100%;
@@ -147,6 +147,7 @@ html, body {
 }
 
 #form_submit:hover {
+  cursor: pointer;
   background-color: #fff;
   border: 1px solid #553d67;
   color: #553d67;
@@ -185,6 +186,70 @@ html, body {
 }
 
 
+#analytics #chart-main {
+  width: 90%;
+  height: 80%;
+  overflow: auto;
+  box-shadow: 0 0 20px rgba(0,0,0, 0.5);
+
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+#chart-container {
+  width: 100%;
+  height: 80%;
+}
+
+#analytics_form_table {
+  margin-left: 7%;
+  border-collapse: collapse;
+  background:#fff;
+  width: 80%;
+  height: 100%;
+}
+
+#analytics_form_table td {
+  padding: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+
+#analytics_id {
+  padding: 3%;
+  width: 99%;
+  height: 4.5em;
+  border: 1px solid #553d678a;
+  border-radius: 1px;
+}
+
+#analytics_fDate, #analytics_tDate {
+  text-align: center;
+  width: 99%;
+  height: 2em;
+  border: 1px solid #553d678a;
+  border-radius: 1px;
+}
+
+#analytics_submit {
+  width: 99%;
+  height: 4.5em;
+  background-color: #553d67;
+  color: #fff;
+  transition: 0.5s;
+  border: 1px solid #553d67;
+}
+
+
+#analytics_submit:hover {
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #553d67;
+  color: #553d67;
+}
+
 /* actions */
 #actions {
   font-weight: 550;
@@ -222,6 +287,19 @@ html, body {
 }
 
 @media(max-width:568px) {
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    font-size: 10px;
+    font-family:   'helvetica';
+    font-weight: 400;
+    line-height: 1.8em;
+    text-align: center;
+    background-color: #99738e36;
+  }
+
+
   #DataPanel{
     display: block;
     text-align: center;
@@ -245,5 +323,17 @@ html, body {
 
   #actions #trDataButton {
     margin-top: 0%;
+  }
+
+  #trData #table_box {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+
+  #analytics #chart-main {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
   }
 }
