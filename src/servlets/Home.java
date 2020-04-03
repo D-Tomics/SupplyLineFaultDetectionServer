@@ -1,6 +1,7 @@
 package servlets;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,7 +20,6 @@ import org.json.simple.parser.ParseException;
 import data.TransformerData;
 import db.Database;
 import db.Table;
-import jdk.nashorn.internal.ir.RuntimeNode.Request;
 
 @WebServlet("/Home")
 public class Home extends HttpServlet {
@@ -34,22 +34,26 @@ public class Home extends HttpServlet {
     }
 
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String action = req.getParameter("action");
+    
+        String username = (String)req.getSession().getAttribute("username");
+        if(username == null) {
+            res.sendRedirect("index.jsp");
+            return;
+        }
 
+        String action = req.getParameter("action");
         Database database = Database.getDatabase("employee");
 
         switch (action) {
             case TR_DATA:
                 String sqlCondition = getSqlCondition(req);
-                // if(sqlCondition.isEmpty() || sqlCondition.equalsIgnoreCase("status=ok"))
-                // sqlCondition = "id <= 5";
 
                 Table trData = database.getTable("trData");
-                ResultSet rs = trData.get("*", sqlCondition.toString());
+                ResultSet trDataResultSet = trData.get("*", sqlCondition.toString());
                 ArrayList<TransformerData> list = new ArrayList<>();
                 try {
-                    while (rs.next()) {
-                        list.add(getTrData(rs));
+                    while (trDataResultSet.next()) {
+                        list.add(getTrData(trDataResultSet));
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -58,15 +62,45 @@ public class Home extends HttpServlet {
                 req.setAttribute("visible", "trData");
                 break;
             case ANALYTICS:
+                String id = req.getParameter("id");
+                String date_from = req.getParameter("date_from");
+                String date_to   = req.getParameter("date_to");
+                
+                if(id == null || id != null && id.isEmpty()) {
+                    req.setAttribute("visible", "analytics");
+                    break;
+                }
+                
+                Date t_date      = date_from != null && !date_from.isEmpty() ? Date.valueOf(date_to): null;
+                Date f_date      = date_to != null && !date_to.isEmpty() ? Date.valueOf(date_from) : null;
+                
+                if(f_date == null || t_date == null || f_date.after(t_date)) {
+                    req.setAttribute("visible", "analytics");
+                    break;
+                }
+                
                 Table trDataLog = database.getTable("trDataLog");
-                Date date = Date.valueOf("1970-01-01");
-                String json = trDataLog.getString("log", "date=?", date);
-
-                JSONParser parser = new JSONParser();
+                ResultSet trDataLogResultSet = trDataLog.get("log", "id=? AND date>=? && date<=?", Integer.parseInt(id),f_date,t_date);
                 try {
-                    JSONObject job = (JSONObject) parser.parse(json);
-                    req.setAttribute("trDataLog",job);
-                } catch (ParseException e) {
+                    trDataLogResultSet.last();
+                    if(trDataLogResultSet.getRow() >= 1) {
+                        JSONParser parser = new JSONParser();
+                        JSONObject job = new JSONObject();
+
+                        trDataLogResultSet.beforeFirst();
+                        int i = 0;
+                        while(trDataLogResultSet.next()) {
+                            String json = trDataLogResultSet.getString("log");
+                            JSONObject job2 = (JSONObject) parser.parse(json);
+                            job.put(i, job2);
+                            i++;
+                        }
+                        job.put("max_keys", i);
+                        req.setAttribute("trDataLog",job);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }catch (ParseException e) {
                     e.printStackTrace();
                 }
                 req.setAttribute("visible", "analytics");
