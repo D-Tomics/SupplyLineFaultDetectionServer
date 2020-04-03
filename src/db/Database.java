@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Database {
 
@@ -22,8 +24,9 @@ public class Database {
     private Connection connection;
     private boolean connected;
     private Statement statement;
+    private HashMap<String,Table> tables;
 
-    public static Database instance ;
+    private static Database instance ;
     public static Database getDatabase(String name) {
         if(instance == null)
             instance = new Database();
@@ -147,6 +150,11 @@ public class Database {
     public String getName() { return name; }
 
     public Table getTable(String name) {
-        return new Table(name, this);
+        if(tables == null) {
+            tables = new HashMap<>();
+        }
+        
+        tables.putIfAbsent(name, new Table(name, this));
+        return tables.get(name);
     }
 }

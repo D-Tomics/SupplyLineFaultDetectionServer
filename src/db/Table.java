@@ -76,6 +76,7 @@ public class Table {
 
     public boolean contains(String columnName, Object value) { return  getObject(columnName, columnName + "=?", value) != null; }
 
+    /* these functions are to be used when the condition returns a single cell of a table. If not then these functions returns null*/
     public String   getString (String columnName, String condition) { return (String) getObject(columnName, condition); }
     public byte     getByte   (String columnName, String condition) { return (byte)   getObject(columnName, condition); }
     public short    getShort  (String columnName, String condition) { return (short)  getObject(columnName, condition); }
@@ -104,8 +105,7 @@ public class Table {
         try {
             rs.last();
             int count = rs.getRow();
-            if(count > 1 || count < 1) {
-                //System.err.println("returned result contains more than one Object or does not contain any element");
+            if(count > 1 || count < 1) {//returned result contains more than one Object or does not contain any element"
                 return null;
             }
             rs.beforeFirst();
@@ -122,7 +122,7 @@ public class Table {
 
     private void setColumns() {
         try {
-            ResultSet rs = db.executeQuery("SELECT * FROM " + name + " WHERE 1=2");
+            ResultSet rs = db.executeQuery("SELECT * FROM " + name + " WHERE 1=2"); // condition 1 = 2 returns null from table. But enough to get metadata of the table
             if (rs == null)
                 throw new IllegalStateException("could'nt initialise table " + name);
 
