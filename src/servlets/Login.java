@@ -1,7 +1,6 @@
 package servlets;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,13 +10,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import data.User;
-import db.Database;
 
 @WebServlet("/Login")
 public class Login extends HttpServlet {
-
-    private static final String ADMIN_UN = "admin";
-    private static final String ADMIN_PW = "admin";
 
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         doPost(req, res);
