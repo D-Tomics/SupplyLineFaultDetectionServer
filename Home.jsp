@@ -170,8 +170,7 @@
             var trData =document.getElementById("trData");
             var analytics = document.getElementById("analytics");
             var cName = document.getElementById("cName");
-
-            console.log("${test}");
+            
             switch(visible) {
                 case "trData":
                     
@@ -203,6 +202,17 @@
                     setCookie("prevVisible","trData");
                     break;
                 case "analytics":
+                    let today = new Date(); 
+                    let dd = String(today.getDate()).padStart(2, '0');
+                    let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                    let yyyy = today.getFullYear();
+                    today =yyyy+'-'+mm+'-'+dd;
+                    
+                    var fDate = document.getElementById("analytics_fDate");
+                    var tDate = document.getElementById("analytics_tDate");
+                    if(fDate.value == "") fDate.defaultValue = today;
+                    if(tDate.value == "") tDate.defaultValue = today;
+
                     var trDataLog = '${trDataLog}';
                     if(trDataLog != "") {
                         drawChart('${trDataLog}')
