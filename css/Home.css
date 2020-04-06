@@ -20,7 +20,7 @@ html, body {
 }
 
 .fadeOut {
-  animation: fadeout 0.3s;
+  animation: fadeout 1s;
 }
 
 @keyframes fadein {
@@ -36,7 +36,6 @@ html, body {
 /* data panel */
 #DataPanel {
   background-image: url(../images/Power_lines_pillars.jpg);
-  opacity: 0.9;
   position: relative;
   background-position: center;
   background-repeat: no-repeat;
