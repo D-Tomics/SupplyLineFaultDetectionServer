@@ -7,6 +7,8 @@ import db.Table;
 
 public class User {
 
+    private static final String[] FIELDS = new String[] {"name","email","password","salt"};
+
     private String username;
     private String email;
     private static Database usersDB;
@@ -20,8 +22,8 @@ public class User {
     public User(String username) {
         this.username = username;
         if(usersDB == null) {
-            usersDB = Database.getDatabase("employee");
-            usersTable = usersDB.getTable("employeeDat");
+            usersDB = Database.getDatabase("supplyline");
+            usersTable = usersDB.getTable("employeeData");
         }
     }
 
@@ -41,7 +43,7 @@ public class User {
     public boolean registerUser(String password) {
         if(usersTable.contains("name", username)) return false;
         Password securePassword = Encrypt.hashPassword(password);
-        usersTable.insert(username,email,securePassword.getHash(),securePassword.getSalt());
+        usersTable.insert(FIELDS,username,email,securePassword.getHash(),securePassword.getSalt());
         return true;
     }
 

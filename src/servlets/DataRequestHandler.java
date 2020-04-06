@@ -25,8 +25,8 @@ public class DataRequestHandler extends HttpServlet {
         String loc = req.getParameter("loc");
         String status = req.getParameter("status");
 
-        Database db = Database.getDatabase("employee");
-        Table trData = db.getTable("trData");
+        Database db = Database.getDatabase("supplyline");
+        Table trData = db.getTable("trLiveData");
 
         if(trData.contains("id", id)) {
             trData.updateColumns("id="+id, new String[] {"location","current","voltage","status"},loc,current,voltage,status);
