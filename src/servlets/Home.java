@@ -1,7 +1,6 @@
 package servlets;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,7 +26,6 @@ public class Home extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final String TR_DATA = "1";
     private static final String ANALYTICS = "2";
-    private static final String REMOTE = "3";
 
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         doPost(req, res);
@@ -42,23 +40,21 @@ public class Home extends HttpServlet {
         }
 
         String action = req.getParameter("action");
-        Database database = Database.getDatabase("employee");
+        Database database = Database.getDatabase("supplyline");
 
         switch (action) {
             case TR_DATA:
+                Table trData = database.getTable("TrLiveData");
                 String sqlCondition = getSqlCondition(req);
+                String update_id = req.getParameter("update-id");
+                String onOffCheckBox = req.getParameter("onOff-check");
+                req.setAttribute("test", onOffCheckBox);
 
-                Table trData = database.getTable("trData");
-                ResultSet trDataResultSet = trData.get("*", sqlCondition.toString());
-                ArrayList<TransformerData> list = new ArrayList<>();
-                try {
-                    while (trDataResultSet.next()) {
-                        list.add(getTrData(trDataResultSet));
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                if(update_id != null && !update_id.isEmpty()) {
+                    trData.updateColumns("id=?", "isOn", onOffCheckBox != null && onOffCheckBox.equals("onoff-check"),Integer.parseInt(update_id));
                 }
-                req.setAttribute("trData", list);
+                
+                req.setAttribute("trData", getTrData(trData.get("*", sqlCondition.toString()),req));
                 req.setAttribute("visible", "trData");
                 break;
             case ANALYTICS:
@@ -66,6 +62,10 @@ public class Home extends HttpServlet {
                 String date_from = req.getParameter("date_from");
                 String date_to   = req.getParameter("date_to");
                 
+                req.setAttribute("id"       , id        );
+                req.setAttribute("date_from", date_from );
+                req.setAttribute("date_to"  , date_to   );
+
                 if(id == null || id != null && id.isEmpty()) {
                     req.setAttribute("visible", "analytics");
                     break;
@@ -79,34 +79,12 @@ public class Home extends HttpServlet {
                     break;
                 }
                 
-                Table trDataLog = database.getTable("trDataLog");
-                ResultSet trDataLogResultSet = trDataLog.get("log", "id=? AND date>=? && date<=?", Integer.parseInt(id),f_date,t_date);
-                try {
-                    trDataLogResultSet.last();
-                    if(trDataLogResultSet.getRow() >= 1) {
-                        JSONParser parser = new JSONParser();
-                        JSONObject job = new JSONObject();
-
-                        trDataLogResultSet.beforeFirst();
-                        int i = 0;
-                        while(trDataLogResultSet.next()) {
-                            String json = trDataLogResultSet.getString("log");
-                            JSONObject job2 = (JSONObject) parser.parse(json);
-                            job.put(i, job2);
-                            i++;
-                        }
-                        job.put("max_keys", i);
-                        req.setAttribute("trDataLog",job);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                Table trDataLog = database.getTable("TrDataLog");
+                ResultSet trDataLogResultSet = trDataLog.get("dataLog", "id=? AND date>=? && date<=?", Integer.parseInt(id),f_date,t_date);
+                
+                req.setAttribute("trDataLog",parseToJsonData(trDataLogResultSet));
                 req.setAttribute("visible", "analytics");
-                break;
-            case REMOTE:
-                req.setAttribute("visible", "remote");
+
                 break;
             default:
                 req.setAttribute("visible", null);
@@ -115,27 +93,29 @@ public class Home extends HttpServlet {
        req.getRequestDispatcher("./Home.jsp").forward(req, res);
     }
 
-    private TransformerData getTrData(ResultSet rs) throws NumberFormatException, SQLException {
-        return new TransformerData(
-            rs.getInt("id"),
-            Float.parseFloat(rs.getString("current")),
-            Float.parseFloat(rs.getString("voltage")),
-            rs.getString("location"),
-            rs.getString("status")
-            );
-    }
-
     private String getSqlCondition(HttpServletRequest req) {
-        String id = req.getParameter("id");
-        String location = req.getParameter("location");
-        String current = req.getParameter("current");
-        String voltage = req.getParameter("voltage");
-        String freq = req.getParameter("freq");
-        String status = req.getParameter("status");
+        String id       = req.getParameter("id"         );
+        String location = req.getParameter("location"   );
+        String current  = req.getParameter("current"    );
+        String voltage  = req.getParameter("voltage"    );
+        String freq     = req.getParameter("freq"       );
+        String status   = req.getParameter("status"     );
 
         String currOp = req.getParameter("current_operation");
-        String volOp = req.getParameter("voltage_operation");
+        String voltOp = req.getParameter("voltage_operation");
         String freqOp = req.getParameter("freq_operation");
+
+        req.setAttribute("id"       , id        );
+        req.setAttribute("location" , location  );
+        req.setAttribute("current"  , current   );
+        req.setAttribute("voltage"  , voltage   );
+        req.setAttribute("freq"     , freq      );
+        req.setAttribute("status"   , status    );
+        
+        req.setAttribute("currOp"   , currOp    );
+        req.setAttribute("voltOp"   , voltOp    );
+        req.setAttribute("freqOp"   , freqOp    );
+
 
         StringBuilder sqlCondition = new StringBuilder();
         if(id != null && !id.isEmpty())
@@ -153,7 +133,7 @@ public class Home extends HttpServlet {
         if(voltage != null && !voltage.isEmpty()) {
             if(!sqlCondition.toString().isEmpty())
                     sqlCondition.append(" AND ");
-            sqlCondition.append("voltage").append(volOp).append(voltage);
+            sqlCondition.append("voltage").append(voltOp).append(voltage);
         }
         if(freq != null && !freq.isEmpty()) {
             if(!sqlCondition.toString().isEmpty())
@@ -167,6 +147,53 @@ public class Home extends HttpServlet {
         }
 
         return sqlCondition.toString();
+    }
+
+    private ArrayList<TransformerData> getTrData(ResultSet rs,HttpServletRequest req) {
+        ArrayList<TransformerData> dest = new ArrayList<>();
+        try {
+            while (rs.next()) {
+                dest.add(new TransformerData(
+                            rs.getInt("id"),
+                            rs.getFloat("current"),
+                            rs.getFloat("voltage"),
+                            rs.getFloat("frequency"),
+                            rs.getString("location"),
+                            rs.getString("status"),
+                            rs.getBoolean("isOn")
+                    ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dest;
+    }
+
+    private JSONObject parseToJsonData(ResultSet rs) {
+        try {
+            rs.last();
+            if(rs.getRow() >= 1) {
+                JSONParser parser = new JSONParser();
+                JSONObject job = new JSONObject();
+                rs.beforeFirst();
+                int i = 0;
+                while(rs.next()) {
+                    String json = rs.getString("dataLog");
+                    JSONObject job2 = (JSONObject) parser.parse(json);
+                    job.put(i, job2);
+                    i++;
+                }
+                job.put("max_keys", i);
+                return job;
+            } else 
+                return null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+
     }
 
 }
