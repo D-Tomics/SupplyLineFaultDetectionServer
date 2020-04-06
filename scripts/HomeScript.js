@@ -19,7 +19,16 @@ function accessCookie(name) {
     return "";
 }
 
+function getCookie(name) {
+    let cookie = accessCookie(name);
+    return cookie.substring(cookie.indexOf("=") + 1,cookie.length);
+}
+
 function addCookie(name, value) {
+    document.cookie = name+"="+value+";";
+}
+
+function setCookie(name, value) {
     document.cookie = name+"="+value+";";
 }
 
