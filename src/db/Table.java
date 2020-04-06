@@ -20,6 +20,13 @@ public class Table {
         this.setColumns();
     }
 
+    /**
+     * this inserts given values into a new row of the table
+     * The no of values must match the no of columns in the table and their types
+     * @param values values to be inserted
+     * @return  1 if insertion is successfull
+     *          0 if insertion failed
+     */
     public int insert(Object... values) {
         if (columns.length != values.length)
             throw new IllegalStateException("sql error::values.lenth != columns.length");
@@ -29,6 +36,13 @@ public class Table {
         return db.executeUpdate(statement);
     }
 
+    /**
+     * This inserts values into a new row of table but only to the columns specified by columnNames
+     * @param columnNames columns of the new row to which values are to be inserted
+     * @param values the values to be inserted
+     * @return 1 if insertion is successfull
+     *         0 if insertion fails
+     */
     public int insert(String[] columnNames, Object...values) {
         if(columnNames.length != values.length)
             throw new IllegalStateException("values length != columnNames length");
@@ -38,27 +52,78 @@ public class Table {
         return db.executeUpdate(statement);
     }
 
+    /**
+     * this method updates values of columns specified by columnNames and 
+     * that passes a condition
+     * 
+     * @param condition this can be a parameterised or not parameterised sql condition if parameterised
+     * the values must be specified at the end of values
+     * 
+     * @param columnNames these are the names of columns whose values are to be updated
+     * 
+     * @param values this contains the new values to be placed in the columns that passes condition
+     * also if condition is parameterised sql statement then at the end of values it should contain parameters
+     * of condition
+     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements
+     * or (2) 0 for SQL statements that return nothing
+     */
     public int updateColumns(String condition, String[] columnNames, Object...values) {
-        if(columnNames.length != values.length)
-            throw new IllegalStateException("column names does not match values");
-
         PreparedStatement statement = db.createPreparedStatement( getUpdateStatement(condition, columnNames) );
         setStatementParams(statement, values);
         return db.executeUpdate(statement);
     }
 
-    public int updateColumns(String condition, String columnName, Object value) {
-        return updateColumns(condition, new String[] { columnName }, value);
+    /**
+     * this method updates value of a sigle column specified by a columnName and 
+     * that passes a condition
+     * 
+     * @param condition this can be a parameterised or not parameterised sql condition if parameterised
+     * the values must be specified at the end of values
+     * 
+     * @param columnName this is the name of column whose value is to be updated
+     * 
+     * @param values this is the new value of the column. This vararg is of length 1 iff condition 
+     * is not parameterised else it also contains parameters of condition statement
+     * 
+     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements
+     * or (2) 0 for SQL statements that return nothing
+     */
+    public int updateColumns(String condition, String columnName, Object...values) {
+        return updateColumns(condition, new String[] { columnName }, values);
     }
 
+    /**
+     * this executes a sql select query on a single column and returns a <code>ResutlSet</code> object that contains all 
+     * data of the column
+     * @param columnName this is the name of column to obtained
+     * @return  a <code>ResultSet</code> object that contains the column;
+     *          <code>null</code> when column name does not exist
+     */
     public ResultSet get(String columnName) {
         return get(columnName, null);
     }
 
+    /**
+     * this executes a sql select query on a single column with a condition and returns a <code>ResutlSet</code> object that contains all 
+     * data of the column. If condition is parameterised then use {@link Table#get(String,String,Object...)} method.
+     * @param columnName this is the name of column to obtained
+     * @param condition this is the condition to be checked
+     * @return  a <code>ResultSet</code> object that contains the column;
+     *          <code>null</code> when column name does not exist
+     */
     public ResultSet get(String columnName, String condition) {
         return get(columnName, condition, (Object) null);
     }
 
+    /**
+     * this returns a <code>ResultSey</cod> object that contains all the cells that passes a condition and are in the columns specified by
+     * coulumn names
+     * @param columnNames this is a <code>String</code> array that contains the column names that is to be queried
+     * @param condition this is the condition that is checked when querying. This can be a parameterised statement.
+     * @param conditionParams this contains values of parameters that need to be passed into the condition
+     * @return  a <code>ResultSet</code> object that contains the all columns
+     *         <code>null</code> when either any of column name in column names does not exist
+     */
     public ResultSet get(String[] columnNames, String condition, Object...conditionParams) {
         PreparedStatement statement = db.createPreparedStatement(getQueryStatement(condition, columnNames));
         if(conditionParams != null && conditionParams.length != 0 && condition != null && !condition.isEmpty())
@@ -66,6 +131,15 @@ public class Table {
         return db.executeQuery(statement);
     }
 
+    /**
+     * this executes a sql select query on a single column with a condition and returns a <code>ResutlSet</code> object that contains all 
+     * data of the column 
+     * @param columnName this is the name of column to obtained
+     * @param condition this is the condition to be checked .This can be parameterised
+     * @param conditionParams if condition is a parameterised statement then its params must be specified here
+     * @return a <code>ResultSet</code> object that contains the all columns
+     *         <code>null</code> when either any of column name in column names does not exist
+     */
     public ResultSet get(String columnName, String condition, Object...conditionParams) {
         PreparedStatement statement = db.createPreparedStatement(getQueryStatement(condition, columnName));
         if(conditionParams != null && conditionParams.length != 0 && condition != null && !condition.isEmpty())
@@ -74,6 +148,13 @@ public class Table {
     }
 
 
+    /**
+     * checks if a value exist in specified column name
+     * @param columnName name of the column to be checked
+     * @param value value to be checked in column
+     * @return  true if value exist in the column
+     *          false if not
+     */
     public boolean contains(String columnName, Object value) { return  getObject(columnName, columnName + "=?", value) != null; }
 
     /* these functions are to be used when the condition returns a single cell of a table. If not then these functions returns null*/
