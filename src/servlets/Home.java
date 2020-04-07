@@ -42,6 +42,7 @@ public class Home extends HttpServlet {
         String action = req.getParameter("action");
         Database database = Database.getDatabase("supplyline");
 
+        action = action != null ? action : "";
         switch (action) {
             case TR_DATA:
                 Table trData = database.getTable("TrLiveData");
