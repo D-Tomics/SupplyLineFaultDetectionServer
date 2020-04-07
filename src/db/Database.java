@@ -33,14 +33,14 @@ public class Database {
         return instance;
     }
 
-    public static Database getDatabase(String dbName, String userName, String password, String host, String url) {
-        if(instance == null) 
+    public static Database getDatabase(String name, String username, String password, String host, long port) {
+        if(instance == null)
             instance = new Database();
-        instance.name = dbName;
+        instance.name = name;
         instance.host = host;
-        instance.url = url;
-        instance.usrname = userName;
+        instance.usrname = username;
         instance.password = password;
+        instance.url = "jdbc:mysql://"+username+":"+password+"@"+host+":"+port+"/"+name;
         return instance;
     }
 
