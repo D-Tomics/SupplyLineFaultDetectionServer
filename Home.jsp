@@ -25,6 +25,7 @@
             response.setHeader("Cache-control","no-store,no-cache,must-revalidate"); // Http 1.1
             response.setHeader("Pragma","no-cahce"); //Http 1.0
             response.setHeader("Expires","0"); //proxies
+            response.setHeader("refresh",300);
 
             String usrName = (String)session.getAttribute("username");
             if(usrName == null) response.sendRedirect("./index.jsp");
@@ -106,7 +107,7 @@
                                 <td class="trData_table_data"><c:out value="${row.getVoltage()}"/>  </td>
                                 <td class="trData_table_data"><c:out value="${row.getFrequency()}"/></td>
                                 <td class="trData_table_data"><c:out value="${row.getStatus()}"/>
-                                    <form action="Home" style="display: inline;" id="tr-controll-form-${fn:escapeXml(row.getId())}">
+                                    <form action="Home" style="display: inline;" id="tr-controll-form-${fn:escapeXml(row.getId())}" method="POST">
                                         
                                         <input type="hidden"   name="action"             id="a${fn:escapeXml(row.getId())}"      value="1">
                                         <input type="hidden"   name="id"                 id="id${fn:escapeXml(row.getId())}"              >
@@ -170,7 +171,7 @@
             var trData =document.getElementById("trData");
             var analytics = document.getElementById("analytics");
             var cName = document.getElementById("cName");
-            
+
             switch(visible) {
                 case "trData":
                     
