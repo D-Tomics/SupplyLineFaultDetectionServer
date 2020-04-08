@@ -1,8 +1,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix = "c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix = "sql"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
+    <title>ABC</title>
     <meta charset="utf-8" />
     <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -25,7 +25,6 @@
             response.setHeader("Cache-control","no-store,no-cache,must-revalidate"); // Http 1.1
             response.setHeader("Pragma","no-cahce"); //Http 1.0
             response.setHeader("Expires","0"); //proxies
-            response.setHeader("refresh",300);
 
             String usrName = (String)session.getAttribute("username");
             if(usrName == null) response.sendRedirect("./index.jsp");
@@ -42,11 +41,11 @@
                         <form id="trCustomQuery" action="Home" method="POST">
                             <input type="hidden" value="1" name="action">
                             <tr id="form_row">
-                                <td rowspan="2">  <input type="number"  id="input_id"       name="id"       placeholder="id"        value="${fn:escapeXml(id)}"         > </td>
-                                <td rowspan="2">  <input type="text"    id="input_loc"      name="location" placeholder="location"  value="${fn:escapeXml(location)}"   > </td>  
-                                <td            >  <input type="number"  id="input_current"  name="current"  placeholder="current"   value="${fn:escapeXml(current)}"    > </td>
-                                <td            >  <input type="number"  id="input_voltage"  name="voltage"  placeholder="voltage"   value="${fn:escapeXml(voltage)}"    > </td>
-                                <td            >  <input type="number"  id="input_freq"     name="freq"     placeholder="freq(HZ)"  value="${fn:escapeXml(freq)}"       > </td>
+                                <td rowspan="2">  <input type="number"  id="input_id"       name="id"       placeholder="id"        value="${id}"         > </td>
+                                <td rowspan="2">  <input type="text"    id="input_loc"      name="location" placeholder="location"  value="${location}"   > </td>  
+                                <td            >  <input type="number"  id="input_current"  name="current"  placeholder="current"   value="${current}"    > </td>
+                                <td            >  <input type="number"  id="input_voltage"  name="voltage"  placeholder="voltage"   value="${voltage}"    > </td>
+                                <td            >  <input type="number"  id="input_freq"     name="freq"     placeholder="freq(HZ)"  value="${freq}"       > </td>
                                 <td rowspan="2">
                                     <select id="input_status" name="status">
                                         <option value="ok">ok</option>
@@ -107,20 +106,20 @@
                                 <td class="trData_table_data"><c:out value="${row.getVoltage()}"/>  </td>
                                 <td class="trData_table_data"><c:out value="${row.getFrequency()}"/></td>
                                 <td class="trData_table_data"><c:out value="${row.getStatus()}"/>
-                                    <form action="Home" style="display: inline;" id="tr-controll-form-${fn:escapeXml(row.getId())}" method="POST">
+                                    <form action="Home" style="display: inline;" id="tr-controll-form-${row.getId()}" method="POST">
                                         
-                                        <input type="hidden"   name="action"             id="a${fn:escapeXml(row.getId())}"      value="1">
-                                        <input type="hidden"   name="id"                 id="id${fn:escapeXml(row.getId())}"              >
-                                        <input type="hidden"   name="location"           id="loc${fn:escapeXml(row.getId())}"             >
-                                        <input type="hidden"   name="current"            id="curr${fn:escapeXml(row.getId())}"            >
-                                        <input type="hidden"   name="voltage"            id="volt${fn:escapeXml(row.getId())}"            >
-                                        <input type="hidden"   name="freq"               id="freq${fn:escapeXml(row.getId())}"            >
-                                        <input type="hidden"   name="current_operation"  id="curr_op${fn:escapeXml(row.getId())}"         >
-                                        <input type="hidden"   name="voltage_operation"  id="volt_op${fn:escapeXml(row.getId())}"         >
-                                        <input type="hidden"   name="freq_operation"     id="freq_op${fn:escapeXml(row.getId())}"         >
+                                        <input type="hidden"   name="action"             id="a${row.getId()}"      value="1">
+                                        <input type="hidden"   name="id"                 id="id${row.getId()}"              >
+                                        <input type="hidden"   name="location"           id="loc${row.getId()}"             >
+                                        <input type="hidden"   name="current"            id="curr${row.getId()}"            >
+                                        <input type="hidden"   name="voltage"            id="volt${row.getId()}"            >
+                                        <input type="hidden"   name="freq"               id="freq${row.getId()}"            >
+                                        <input type="hidden"   name="current_operation"  id="curr_op${row.getId()}"         >
+                                        <input type="hidden"   name="voltage_operation"  id="volt_op${row.getId()}"         >
+                                        <input type="hidden"   name="freq_operation"     id="freq_op${row.getId()}"         >
 
-                                        <input type="hidden"   name="update-id"                                      value="${fn:escapeXml(row.getId())}">
-                                        <input type="checkbox" name="onOff-check" id="${fn:escapeXml(row.getId())}"  value="onoff-check" class="tr-controll"  ${row.isOn()?'checked':''}>
+                                        <input type="hidden"   name="update-id"                                      value="${row.getId()}">
+                                        <input type="checkbox" name="onOff-check" id="${row.getId()}"  value="onoff-check" class="tr-controll"  ${row.isOn()?'checked':''}>
                                     </form>
                                 </td>
                             </tr>
@@ -136,11 +135,11 @@
                             <input type="hidden" value ="2" name="action">
                             <table id="analytics_form_table">
                                 <tr>
-                                    <td rowspan="2" >   <input type="number" id="analytics_id"      name="id"          value="${fn:escapeXml(id)}"        placeholder="id"       >  </td>
-                                    <td             >   <input type="date"   id="analytics_fDate"   name="date_from"   value="${fn:escapeXml(date_from)}"                        >  </td>
+                                    <td rowspan="2" >   <input type="number" id="analytics_id"      name="id"          value="${id}"        placeholder="id"       >  </td>
+                                    <td             >   <input type="date"   id="analytics_fDate"   name="date_from"   value="${date_from}"                        >  </td>
                                     <td rowspan="2" >   <input type="submit" id="analytics_submit"  value="submit"                                                               >  </td>
                                 </tr>
-                                <tr><td             >   <input type="date"   id="analytics_tDate"   name="date_to"     value="${fn:escapeXml(date_to)}"                          >  </td></tr>
+                                <tr><td             >   <input type="date"   id="analytics_tDate"   name="date_to"     value="${date_to}"                          >  </td></tr>
                             </table>
                         </form>
                     </div>
