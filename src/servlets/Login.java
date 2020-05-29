@@ -24,7 +24,7 @@ public class Login extends HttpServlet {
 
         HttpSession session = req.getSession();
         if(session.getAttribute("username") != null){
-             res.sendRedirect("./Home.jsp");
+             res.sendRedirect("Home");
             return;
         }
 
@@ -32,7 +32,7 @@ public class Login extends HttpServlet {
 
         if(user.authenticate(password)){
             session.setAttribute("username", userName);
-            res.sendRedirect("./Home.jsp");
+            res.sendRedirect("Home");
         } else{
             req.getRequestDispatcher("/index.jsp").forward(req, res);;
         }
