@@ -2,23 +2,31 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix = "sql"%>
 <!DOCTYPE html>
 <html>
-    <title>ABC</title>
-    <meta charset="utf-8" />
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <head>
+        <title>ABC</title>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-    <script src="./scripts/chart.js"></script>
-    <script src="./scripts/HomeScript.js"></script>
-    <script>
-        window.addEventListener("beforeprint",function() {
-            for (var id in Chart.instances) {
-            Chart.instances[id].resize();
-            }
-        });
-    </script>
-    <link rel="stylesheet" type="text/css" href="./css/Home.css">
-<head>
-</head>
+        <script src="./scripts/chart.js"></script>
+        <script src="./scripts/HomeScript.js"></script>
+        <script>
+            window.addEventListener("beforeprint",function() {
+                for (var id in Chart.instances) {
+                Chart.instances[id].resize();
+                }
+            });
+        </script>
+        <link rel="stylesheet" type="text/css" href="./css/Home.css">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"></link>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    </head>
 
     <body onload="onLoad()">
         <%
@@ -30,11 +38,7 @@
             if(usrName == null) response.sendRedirect("./index.jsp");
         %>
         <div id="DataPanel">
-            <div id="cName" class="dataPanelElements">
-                A B C <br><br>
-                P O W E R <br><br>
-                G R I D
-            </div>
+            <div id="map" class="dataPanelElements"></div>
             <div id="trData" class="dataPanelElements" style="opacity: 0;">
                 <div id="table_box">
                     <table id="trDataTable">
@@ -91,12 +95,12 @@
                             </tr>
                         </form>
                         <tr id="header_row">
-                            <th class="trData_table_header">id      </th>
-                            <th class="trData_table_header">location</th>
-                            <th class="trData_table_header">current </th>
-                            <th class="trData_table_header">voltage </th>
-                            <th class="trData_table_header">freq    </th>
-                            <th class="trData_table_header">status  </th>
+                            <th class="trData_table_header">id               </th>
+                            <th class="trData_table_header">location(lat,lng)</th>
+                            <th class="trData_table_header">current          </th>
+                            <th class="trData_table_header">voltage          </th>
+                            <th class="trData_table_header">freq             </th>
+                            <th class="trData_table_header">status           </th>
                         </tr>
                         <c:forEach var="row" items="${trData}">
                             <tr class="tr_data_row">
@@ -157,11 +161,13 @@
 
         </div>
         <div id="actions">
-            <a href="Home?action=1"><div class = "btn" id="trDataButton"   > LIVE DATA   </div></a>
-            <a href="Home?action=2"><div class = "btn" id="analyticsButton"> ANALYTICS   </div></a>
-            <a href="Home.jsp">     <div class="btn" id="homepage"         > HOME        </div></a>
-            <a href="Home?action=4"><div class = "btn" id="aboutButton"    > ABOUT       </div></a>
-            <a href="Logout">       <div class = "btn" id="logout"         > LOGOUT      </div></a>
+            <a href="Home?action=1"> <div class = "btn" id="trDataButton"   > LIVE DATA   </div></a>
+            <a href="Home?action=2"> <div class = "btn" id="analyticsButton"> ANALYTICS   </div></a>
+            <a href="Home?action=3"> <div class="btn" id="homepage"         > HOME        </div></a>
+            <a href="Home?action=4"> <div class = "btn" id="aboutButton"    > ABOUT       </div></a>
+            <a href="Logout">        <div class = "btn" id="logout"         > LOGOUT      </div></a>
+
+            <div id="cName">A B C  <br> P o w e r  <br> G r i d </div>
         </div>
         <script>
             var prevVisible = getCookie("prevVisible");
@@ -169,7 +175,7 @@
             var datapanel = document.getElementById("DataPanel");
             var trData =document.getElementById("trData");
             var analytics = document.getElementById("analytics");
-            var cName = document.getElementById("cName");
+            var map = document.getElementById("map");
 
             switch(visible) {
                 case "trData":
@@ -191,9 +197,8 @@
                         });
                     }
                     
-                    if(prevVisible == "analytics") {
+                    if(prevVisible == "analytics") 
                         analytics.style.opacity = 1;
-                    }
                     analytics.style.zIndex  = 0;
                     trData.style.zIndex     = 2;
                     trData.style.opacity = 1;
@@ -231,6 +236,7 @@
                     setCookie("prevVisible","analytics");
                     break;
                 default:
+                    map.style.zIndex = 1;
                     if(prevVisible == "trData") {
                         trData.style.opacity = 1;
                         trData.style.zIndex = 0;
@@ -242,11 +248,38 @@
                         analytics.classList.add("fadeOut");
                         analytics.style.opacity = 0;
                     }
+                    
+                    let trDatas = JSON.parse('${trDataLoc}');
+                    let mymap = L.map('map').setView([10.111852, 76.352341], 9);
+                    L.tileLayer(
+                        'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
+                        {
+                            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                            maxZoom: 18,
+                            id: 'mapbox/dark-v10',//'jajof71139/ckasc48as01r31iqvs2d23ll7',
+                            tileSize: 512,
+                            zoomOffset: -1,
+                            accessToken: 'pk.eyJ1IjoiamFqb2Y3MTEzOSIsImEiOiJja2FwZzBpaWIwM3IyMnZ0NTR4ZGl3OXM3In0.jFePmoU1GQ1ky5LSIdyfyQ'
+                        }
+                    ).addTo(mymap);
+
+                    var markers = new L.MarkerClusterGroup();
+
+                    for(let i = 0; i < trDatas.length; i++) {
+                        let data = trDatas[i];
+                        markers.addLayer(L.marker([data.loc.lat, data.loc.lng]));
+                    }
+                    mymap.addLayer(markers);
                     setCookie("prevVisible","");
             }
 
             function getSeletctedValue(e) {
                 return e.options[e.selectedIndex].value;
+            }
+
+            function getLocation(tr) {
+                var locationString = tr.location.split(",");
+                return [parseFloat(locationString[0]), parseFloat(locationString[1])]
             }
         </script>
     </body>
