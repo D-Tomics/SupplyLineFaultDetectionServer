@@ -22,7 +22,6 @@ public class Home extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final String TR_DATA = "1";
     private static final String ANALYTICS = "2";
-    private static final String HOME = "3";
     private static final String ABOUT = "4";
 
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -46,13 +45,14 @@ public class Home extends HttpServlet {
             case ANALYTICS:
                 req.getRequestDispatcher("./Analytics").forward(req, res);
                 return;
-            case HOME:
+            case ABOUT:
+                req.setAttribute("visible", "About");
+                break;
+            default:
                 Database database = Database.getDatabase("supplyline");
                 Table trData = database.getTable("TrLiveData");
                 req.setAttribute("trDataLoc", getJSonString(TrData.getTrData(trData.get("*"),req)));
-            case ABOUT:
-            default:
-                req.setAttribute("visible", null);
+                req.setAttribute("visible", "Home");
         }
 
        req.getRequestDispatcher("./Home.jsp").forward(req, res);

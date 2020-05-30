@@ -19,13 +19,22 @@
         </script>
         <link rel="stylesheet" type="text/css" href="./css/Home.css">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-    crossorigin=""/>
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin=""/>
+
+        <style>
+            .popupCustom .leaflet-popup-tip,
+            .popupCustom .leaflet-popup-content-wrapper {
+                background: #191A1A;
+                color: #3b515a;
+            }
+        </style>
+        
         <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
-    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
-    crossorigin=""></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"></link>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+        crossorigin=""></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
+        <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     </head>
 
     <body onload="onLoad()">
@@ -159,11 +168,39 @@
                 </div>
             </div>
 
+            <div id="about" class="dataPanelElements" style="opacity: 0;">
+                <H1>
+                    About
+                </H1>
+                <br>
+                <p>
+                    &nbsp&nbsp This website is a part of our final year project at Mar Athanasius College of Engineering, Kothamangalam.<br>
+                    This website acts as a platform for data analysis and as a notifier of faults when ever a fault occurs on the grid.<br>
+                    Group members:<B>Abdul Kareem, chriswin George, Samuel J George, Deleena Thomas</B><br>
+                    Our guide : <B>Leya George</B>
+                </p>
+
+                <br>
+                <div id="contacts" style="text-align: left;">
+                    <h3>
+                        API's
+                    </h3>
+                    <ul>
+                        <li><a href="https://en.wikipedia.org/wiki/Java_servlet"                        target="_blank">    JAVA Servlets   </a></li>
+                        <li><a href="https://leafletjs.com/"                                            target="_blank">    Leaflet API     </a></li>
+                        <li><a href="https://www.chartjs.org/"                                          target="_blank">    Chart.js        </a></li>
+                        <li><a href="https://docs.oracle.com/javase/tutorial/jdbc/overview/index.html"  target="_blank">    JDBC            </a></li>
+                        <li><a href="https://www.mapbox.com/"                                           target="_blank">    MapBox          </a></li>
+                    </ul>
+                </div>
+                    
+            </div>
+
         </div>
         <div id="actions">
             <a href="Home?action=1"> <div class = "btn" id="trDataButton"   > LIVE DATA   </div></a>
             <a href="Home?action=2"> <div class = "btn" id="analyticsButton"> ANALYTICS   </div></a>
-            <a href="Home?action=3"> <div class="btn" id="homepage"         > HOME        </div></a>
+            <a href="Home">          <div class="btn" id="homepage"         > HOME        </div></a>
             <a href="Home?action=4"> <div class = "btn" id="aboutButton"    > ABOUT       </div></a>
             <a href="Logout">        <div class = "btn" id="logout"         > LOGOUT      </div></a>
 
@@ -172,10 +209,12 @@
         <script>
             var prevVisible = getCookie("prevVisible");
             var visible = '${visible}';
+            console.log(visible);
             var datapanel = document.getElementById("DataPanel");
             var trData =document.getElementById("trData");
             var analytics = document.getElementById("analytics");
             var map = document.getElementById("map");
+            var about = document.getElementById("about");
 
             switch(visible) {
                 case "trData":
@@ -199,8 +238,13 @@
                     
                     if(prevVisible == "analytics") 
                         analytics.style.opacity = 1;
+                    else if(prevVisible == "about")
+                        about.style.opacity = 1;
+
                     analytics.style.zIndex  = 0;
+                    about.style.zIndex      = 0;
                     trData.style.zIndex     = 2;
+
                     trData.style.opacity = 1;
                     if(prevVisible != "trData")
                         trData.classList.add("fadeIn");
@@ -228,15 +272,42 @@
 
                     if(prevVisible == "trData")
                         trData.style.opacity = 1;
+                    else if(prevVisible == "about")
+                        about.style.opacity = 1;
+
                     analytics.style.zIndex = 2;
                     trData.style.zIndex    = 0;
+                    about.style.zIndex     = 0;
+
                     analytics.style.opacity = 1;
                     if(prevVisible != "analytics")
                         analytics.classList.add("fadeIn");
                     setCookie("prevVisible","analytics");
                     break;
-                default:
+                case "Home":
                     map.style.zIndex = 1;
+                    
+                    if(prevVisible == "trData") {
+                        trData.style.opacity = 1;
+                        trData.style.zIndex = 0;
+                        trData.classList.add("fadeOut");
+                        trData.style.opacity = 0;
+                    } else if(prevVisible == "analytics") {
+                        analytics.style.opacity = 1;
+                        analytics.style.zIndex = 0;
+                        analytics.classList.add("fadeOut");
+                        analytics.style.opacity = 0;
+                    } else {
+                        about.style.opacity = 1;
+                        about.style.zIndex = 0;
+                        about.classList.add("fadeOut");
+                        about.style.opacity = 0;
+                    }
+                    setCookie("prevVisible","");
+                    drawMap('${trDataLoc}');
+                    
+                    break;
+                case "About":
                     if(prevVisible == "trData") {
                         trData.style.opacity = 1;
                         trData.style.zIndex = 0;
@@ -248,29 +319,16 @@
                         analytics.classList.add("fadeOut");
                         analytics.style.opacity = 0;
                     }
-                    
-                    let trDatas = JSON.parse('${trDataLoc}');
-                    let mymap = L.map('map').setView([10.111852, 76.352341], 9);
-                    L.tileLayer(
-                        'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
-                        {
-                            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                            maxZoom: 18,
-                            id: 'mapbox/dark-v10',//'jajof71139/ckasc48as01r31iqvs2d23ll7',
-                            tileSize: 512,
-                            zoomOffset: -1,
-                            accessToken: 'pk.eyJ1IjoiamFqb2Y3MTEzOSIsImEiOiJja2FwZzBpaWIwM3IyMnZ0NTR4ZGl3OXM3In0.jFePmoU1GQ1ky5LSIdyfyQ'
-                        }
-                    ).addTo(mymap);
 
-                    var markers = new L.MarkerClusterGroup();
+                    analytics.style.zIndex = 0;
+                    trData.style.zIndex    = 0;
+                    about.style.zIndex     = 2;
 
-                    for(let i = 0; i < trDatas.length; i++) {
-                        let data = trDatas[i];
-                        markers.addLayer(L.marker([data.loc.lat, data.loc.lng]));
-                    }
-                    mymap.addLayer(markers);
-                    setCookie("prevVisible","");
+                    about.style.opacity = 1;
+                    if(prevVisible != "about")
+                        about.classList.add("fadeIn");
+                    setCookie("prevVisible","about");
+                    break;
             }
 
             function getSeletctedValue(e) {

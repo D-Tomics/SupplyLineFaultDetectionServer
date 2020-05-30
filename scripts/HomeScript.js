@@ -168,3 +168,39 @@ function parseData(text) {
 
     return {dates, time_logs, volt_log, curr_log, freq_log, powr_log, avg_volt, avg_curr, avg_freq, avg_powr };
 }
+
+
+function drawMap(trData) {
+    let trDatas = JSON.parse(trData);
+    let map = L.map('map').setView([10.111852, 76.352341], 9);
+    L.tileLayer(
+        'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
+        {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox/dark-v10',//'jajof71139/ckasc48as01r31iqvs2d23ll7',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1IjoiamFqb2Y3MTEzOSIsImEiOiJja2FwZzBpaWIwM3IyMnZ0NTR4ZGl3OXM3In0.jFePmoU1GQ1ky5LSIdyfyQ'
+        }
+    ).addTo(map);
+
+    var markers = new L.MarkerClusterGroup();
+
+    for(let i = 0; i < trDatas.length; i++) {
+        let data = trDatas[i];
+        let marker = L.marker([data.loc.lat, data.loc.lng]);
+        marker.bindPopup(
+            "<B>voltage</B>: "+data.v+"<br>"+
+            "<B>current</B>: "+data.i+"<br>"+
+            "<B>frequency</B>: "+data.f+"<br>",
+            {
+                'maxWidth': '400',
+                'width': '200',
+                'className' : 'popupCustom'
+            }
+            ).openPopup();
+        markers.addLayer(marker);
+    }
+    map.addLayer(markers);
+}
